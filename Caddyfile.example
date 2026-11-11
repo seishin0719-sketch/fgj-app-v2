@@ -1,0 +1,5 @@
+# Caddy 會自動申請與續約 HTTPS 憑證（Let's Encrypt）
+app.你的網域.tw {
+    encode gzip
+    reverse_proxy 127.0.0.1:3000
+}

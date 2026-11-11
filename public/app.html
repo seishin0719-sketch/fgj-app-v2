@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>房管家 - 租屋管理安全諮詢</title>
+<style>
+/* ========== 色彩變數：紫羅蘭 + 黃金 ========== */
+:root{
+  --violet-deep:#2E1065;
+  --violet:#5B21B6;
+  --violet-mid:#7C3AED;
+  --violet-light:#A78BFA;
+  --violet-pale:#F5F3FF;
+  --violet-border:#EDE9FE;
+  --gold:#D4AF37;
+  --gold-light:#F5D98C;
+  --gold-deep:#B8860B;
+  --gold-grad:linear-gradient(135deg,#F5D98C 0%,#D4AF37 50%,#B8860B 100%);
+  --violet-grad:linear-gradient(135deg,#6D28D9 0%,#5B21B6 55%,#2E1065 100%);
+  --text:#1F2937;
+  --text-sub:#6B7280;
+  --white:#fff;
+  --danger:#DC2626;
+  --success:#059669;
+  --radius:16px;
+  --shadow:0 4px 16px rgba(91,33,182,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:"PingFang TC","Microsoft JhengHei","Helvetica Neue",sans-serif;
+  background:linear-gradient(160deg,#1a0b3d 0%,#3B0764 40%,#2E1065 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;color:var(--text);
+}
+/* ========== 手機外殼 ========== */
+.phone{
+  width:390px;height:844px;background:var(--white);border-radius:44px;
+  box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 11px #1a1025,0 0 0 13px var(--gold-deep);
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+}
+.status-bar{
+  height:44px;background:var(--violet-grad);color:#fff;display:flex;
+  align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;
+  font-weight:600;flex-shrink:0;
+}
+.status-bar .icons{display:flex;gap:5px;align-items:center}
+/* ========== 頂部標題列 ========== */
+.app-header{
+  background:var(--violet-grad);color:#fff;padding:10px 18px 16px;flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+.app-header::after{
+  content:"";position:absolute;top:-40px;right:-30px;width:150px;height:150px;
+  background:radial-gradient(circle,rgba(212,175,55,.28),transparent 70%);border-radius:50%;
+}
+.header-row{display:flex;align-items:center;gap:12px;position:relative;z-index:2}
+.logo-box{
+  width:50px;height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
+.logo-box svg{width:50px;height:50px}
+.logo-box .logo-img{
+  width:50px;height:50px;border-radius:13px;display:block;
+  box-shadow:0 4px 12px rgba(0,0,0,.3),0 0 0 1px rgba(212,175,55,.35);
+}
+.header-title{flex:1}
+.header-title .brand{
+  font-size:19px;font-weight:800;letter-spacing:1px;
+  background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.header-title .sub{font-size:11px;color:rgba(255,255,255,.85);margin-top:2px;letter-spacing:.5px}
+.bell{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.bell .dot{position:absolute;top:6px;right:7px;width:8px;height:8px;background:var(--gold);border-radius:50%;border:1.5px solid var(--violet)}
+/* ========== 主要內容區 ========== */
+.screen-wrap{flex:1;overflow:hidden;position:relative;background:#F8F7FC}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:90px;
+  display:none;animation:fadeIn .25s ease;
+}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.screen::-webkit-scrollbar{width:0}
+/* ========== 底部導航 ========== */
+.bottom-nav{
+  position:absolute;bottom:0;left:0;right:0;height:70px;background:var(--white);
+  border-top:1px solid var(--violet-border);display:flex;align-items:center;
+  box-shadow:0 -4px 18px rgba(91,33,182,.1);flex-shrink:0;z-index:50;
+}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:#9CA3AF;font-size:10px;font-weight:600;cursor:pointer;padding:6px 0;transition:.2s}
+.nav-item svg{width:23px;height:23px}
+.nav-item.on{color:var(--violet)}
+.nav-item.on svg{transform:translateY(-2px)}
+.nav-item.on .ico-wrap{
+  background:var(--violet-pale);border-radius:12px;padding:4px 12px;
+}
+/* ========== 通用元件 ========== */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+  margin:14px;padding:16px;border:1px solid rgba(212,175,55,.18)}
+.sec-title{display:flex;align-items:center;gap:8px;margin:4px 14px 10px;font-size:15px;
+  font-weight:800;color:var(--violet-deep)}
+.sec-title .bar{width:4px;height:17px;background:var(--gold-grad);border-radius:2px}
+.sec-title .more{margin-left:auto;font-size:11px;color:var(--violet);font-weight:600}
+.btn{background:var(--violet-grad);color:#fff;border:none;border-radius:12px;padding:13px;
+  font-size:15px;font-weight:700;width:100%;cursor:pointer;font-family:inherit;transition:.2s}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold-grad);color:#3B0764}
+.btn-outline{background:var(--white);color:var(--violet);border:2px solid var(--violet)}
+.btn-sm{padding:9px 16px;font-size:13px;width:auto;border-radius:10px}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.tag-gold{background:rgba(212,175,55,.18);color:var(--gold-deep);border:1px solid rgba(212,175,55,.4)}
+.tag-violet{background:var(--violet-pale);color:var(--violet)}
+.tag-free{background:#F3F4F6;color:#6B7280}
+.tag-lock{background:rgba(220,38,38,.1);color:var(--danger)}
+.input,select.input,textarea.input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--violet-border);border-radius:11px;
+  font-size:14px;font-family:inherit;background:#FDFCFF;color:var(--text);margin-bottom:12px;
+  outline:none;transition:.2s;
+}
+.input:focus{border-color:var(--violet);background:var(--white);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+label.fl{display:block;font-size:12px;font-weight:700;color:var(--violet-deep);margin-bottom:5px}
+/* ========== 會員橫幅 ========== */
+.member-banner{
+  margin:14px;padding:15px;border-radius:var(--radius);
+  background:var(--violet-grad);color:#fff;position:relative;overflow:hidden;
+  box-shadow:0 6px 20px rgba(91,33,182,.3);
+}
+.member-banner::before{
+  content:"";position:absolute;right:-25px;bottom:-35px;width:130px;height:130px;
+  background:radial-gradient(circle,rgba(212,175,55,.35),transparent 70%);
+}
+.mb-top{display:flex;align-items:center;gap:9px;position:relative}
+.mb-top .lv{font-size:17px;font-weight:800;background:var(--gold-grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:1px}
+.mb-top .badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  background:rgba(212,175,55,.22);border:1px solid rgba(212,175,55,.5);color:var(--gold-light)}
+.mb-desc{font-size:11.5px;color:rgba(255,255,255,.82);margin-top:7px;line-height:1.6;position:relative}
+.mb-btn{margin-top:11px;position:relative;display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold-grad);color:#3B0764;padding:8px 16px;border-radius:20px;
+  font-size:12px;font-weight:800;cursor:pointer;border:none;font-family:inherit}
+/* ========== 首頁功能鍵 ========== */
+.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px}
+.q-btn{
+  background:var(--white);border-radius:15px;padding:12px 4px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;border:1px solid rgba(212,175,55,.2);
+  transition:.2s;position:relative;
+}
+.q-btn:active{transform:scale(.94)}
+.q-btn .q-ico{
+  width:42px;height:42px;margin:0 auto 6px;border-radius:13px;display:flex;
+  align-items:center;justify-content:center;background:var(--violet-grad);
+  box-shadow:0 4px 12px rgba(91,33,182,.28);
+}
+.q-btn .q-ico svg{width:23px;height:23px;stroke:#fff}
+.q-btn .q-txt{font-size:10.5px;font-weight:700;color:var(--violet-deep);line-height:1.3}
+.q-btn .lock-ico{position:absolute;top:5px;right:5px;font-size:10px}
+/* ========== 日報 ========== */
+.news-item{display:flex;gap:11px;padding:12px 0;border-bottom:1px dashed var(--violet-border)}
+.news-item:last-child{border-bottom:none}
+.news-pic{width:62px;height:62px;border-radius:11px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:24px;
+  background:linear-gradient(135deg,var(--violet-pale),#EDE9FE)}
+.news-c{flex:1;min-width:0}
+.news-c .nt{font-size:13px;font-weight:700;color:var(--text);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news-c .nm{font-size:10.5px;color:var(--text-sub);margin-top:5px;display:flex;gap:8px;align-items:center}
+.news-c .nm .src{color:var(--violet);font-weight:600}
+.news-hot{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;
+  background:rgba(220,38,38,.1);color:var(--danger);font-weight:700}
+/* ========== 摺疊情境卡 ========== */
+.acc{border:1px solid var(--violet-border);border-radius:13px;margin-bottom:10px;
+  overflow:hidden;background:var(--white)}
+.acc-h{padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.2s}
+.acc-h:active{background:var(--violet-pale)}
+.acc-h .ico{width:36px;height:36px;border-radius:10px;background:var(--violet-pale);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.acc-h .tt{flex:1;font-size:14px;font-weight:700;color:var(--violet-deep)}
+.acc-h .ar{color:var(--violet);font-size:13px;transition:.3s;font-weight:700}
+.acc.open .acc-h .ar{transform:rotate(90deg)}
+.acc-b{display:none;padding:0 14px 14px;border-top:1px dashed var(--violet-border)}
+.acc.open .acc-b{display:block;animation:fadeIn .3s}
+.step{display:flex;gap:10px;margin-top:13px}
+.step-n{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:var(--gold-grad);
+  color:#3B0764;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.step-c{flex:1}
+.step-c .st{font-size:13px;font-weight:700;color:var(--violet-deep);margin-bottom:3px}
+.step-c .sd{font-size:12px;color:var(--text-sub);line-height:1.65}
+.law-box{margin-top:13px;background:#FFFBF0;border-left:3px solid var(--gold);
+  padding:10px 12px;border-radius:0 9px 9px 0}
+.law-box .lt{font-size:11px;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+.law-box .lc{font-size:11.5px;color:#78350F;line-height:1.6}
+.tip-box{margin-top:10px;background:var(--violet-pale);padding:10px 12px;border-radius:9px;
+  font-size:11.5px;color:var(--violet-deep);line-height:1.6}
+.tip-box b{color:var(--violet)}
+.acc-b .acts{display:flex;gap:8px;margin-top:13px}
+/* ========== 列表項目 ========== */
+.list-item{display:flex;align-items:center;gap:12px;padding:13px 0;
+  border-bottom:1px solid var(--violet-border);cursor:pointer}
+.list-item:last-child{border-bottom:none}
+.list-item:active{opacity:.6}
+.li-ico{width:42px;height:42px;border-radius:12px;background:var(--violet-grad);
+  display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.li-c{flex:1;min-width:0}
+.li-c .lt{font-size:13.5px;font-weight:700;color:var(--violet-deep)}
+.li-c .ld{font-size:11px;color:var(--text-sub);margin-top:2px;line-height:1.4}
+.li-ar{color:var(--violet);font-size:14px;font-weight:700}
+/* ========== 彈窗 ========== */
+.mask{position:absolute;inset:0;background:rgba(30,10,60,.6);z-index:100;display:none;
+  align-items:flex-end;backdrop-filter:blur(2px)}
+.mask.show{display:flex}
+.modal{
+  background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:88%;
+  display:flex;flex-direction:column;animation:up .3s ease;
+}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.modal-h{padding:16px 18px 12px;border-bottom:1px solid var(--violet-border);
+  display:flex;align-items:center;flex-shrink:0}
+.modal-h .mt{flex:1;font-size:16px;font-weight:800;color:var(--violet-deep)}
+.modal-h .mx{width:30px;height:30px;border-radius:50%;background:var(--violet-pale);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--violet);font-size:17px;font-weight:700}
+.modal-b{padding:16px 18px;overflow-y:auto;flex:1}
+.modal-b::-webkit-scrollbar{width:0}
+/* ========== 表單產生器結果 ========== */
+.doc-preview{background:#FFFCF5;border:1.5px solid rgba(212,175,55,.45);border-radius:13px;
+  padding:16px;font-size:12.5px;line-height:2;color:#374151;white-space:pre-wrap;
+  font-family:"PingFang TC",serif;max-height:340px;overflow-y:auto}
+.doc-preview::-webkit-scrollbar{width:0}
+.doc-preview .dh{text-align:center;font-size:15px;font-weight:800;color:var(--violet-deep);display:block}
+.act-row{display:flex;gap:9px;margin-top:13px}
+.act-row .btn{flex:1}
+/* ========== 方案卡 ========== */
+.plan{border:2px solid var(--violet-border);border-radius:16px;padding:16px;margin-bottom:12px;
+  background:var(--white);position:relative;cursor:pointer;transition:.2s}
+.plan.sel{border-color:var(--gold);box-shadow:0 6px 20px rgba(212,175,55,.25)}
+.plan.vip{background:linear-gradient(160deg,#FDFBFF,#F5F3FF)}
+.plan .pname{font-size:16px;font-weight:800;color:var(--violet-deep);display:flex;align-items:center;gap:7px}
+.plan .pprice{margin:9px 0}
+.plan .pprice .cur{font-size:27px;font-weight:800;color:var(--violet);}
+.plan .pprice .per{font-size:12px;color:var(--text-sub);margin-left:4px}
+.plan .pprice .ori{font-size:12px;color:#9CA3AF;text-decoration:line-through;margin-left:7px}
+.plan .pfeat{font-size:12px;color:var(--text-sub);line-height:2}
+.plan .pfeat span{color:var(--success);font-weight:800;margin-right:5px}
+.plan .ribbon{position:absolute;top:-10px;right:14px;background:var(--gold-grad);
+  color:#3B0764;font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px}
+/* ========== 聊天 ========== */
+.chat-box{background:var(--violet-pale);border-radius:13px;padding:14px;
+  max-height:360px;overflow-y:auto}
+.chat-box::-webkit-scrollbar{width:0}
+.msg{margin-bottom:13px;display:flex;gap:8px}
+.msg .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;background:var(--violet-grad);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+.msg.me{flex-direction:row-reverse}
+.msg.me .av{background:var(--gold-grad);color:#3B0764}
+.msg .bub{background:var(--white);padding:10px 13px;border-radius:14px;font-size:12.5px;
+  line-height:1.65;max-width:78%;box-shadow:0 2px 7px rgba(91,33,182,.09);color:var(--text)}
+.msg.me .bub{background:var(--violet);color:#fff}
+.msg .tm{font-size:9.5px;color:var(--text-sub);margin-top:3px}
+.msg .bub a{color:var(--violet);text-decoration:underline}
+.typing-indicator{display:inline-flex;align-items:center;gap:4px}
+.typing-dots{width:7px;height:7px;border-radius:50%;background:var(--violet);
+  display:inline-block;animation:typing-bounce 1.2s infinite ease-in-out}
+.typing-dots:nth-child(2){animation-delay:.15s}
+.typing-dots:nth-child(3){animation-delay:.3s}
+@keyframes typing-bounce{0%,60%,100%{transform:translateY(0);opacity:.4}
+  30%{transform:translateY(-6px);opacity:1}}
+.msg .bub br+br{display:none}
+/* ========== 登入頁 ========== */
+.login-wrap{background:var(--violet-grad);height:100%;padding:34px 26px;
+  display:flex;flex-direction:column;justify-content:center;color:#fff;position:relative;overflow:hidden}
+.login-wrap::before{content:"";position:absolute;top:-70px;left:-50px;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(212,175,55,.3),transparent 70%)}
+.login-wrap::after{content:"";position:absolute;bottom:-60px;right:-60px;width:250px;height:250px;
+  background:radial-gradient(circle,rgba(167,139,250,.25),transparent 70%)}
+.lg-in{position:relative;z-index:2;width:100%}
+.lg-logo{width:104px;height:104px;margin:0 auto 16px;display:block;border-radius:26px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(212,175,55,.4)}
+.lg-title{text-align:center;font-size:26px;font-weight:800;letter-spacing:3px;
+  background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lg-sub{text-align:center;font-size:12px;color:rgba(255,255,255,.8);margin:7px 0 30px;letter-spacing:2px}
+.lg-in .input{background:rgba(255,255,255,.13);border:1.5px solid rgba(212,175,55,.4);
+  color:#fff;margin-bottom:11px}
+.lg-in .input::placeholder{color:rgba(255,255,255,.55)}
+.lg-in .input:focus{background:rgba(255,255,255,.2);border-color:var(--gold)}
+.lg-in label.fl{color:var(--gold-light)}
+.lg-links{display:flex;justify-content:space-between;font-size:11.5px;
+  color:rgba(255,255,255,.8);margin:14px 0 22px}
+.lg-links span{cursor:pointer}
+.lg-links span:active{color:var(--gold)}
+.lg-other{text-align:center;font-size:11px;color:rgba(255,255,255,.6);margin-top:22px}
+.lg-oi{display:flex;justify-content:center;gap:16px;margin-top:12px}
+.lg-oi div{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer}
+/* ========== 物件/房客卡 ========== */
+.prop{border:1px solid var(--violet-border);border-radius:13px;padding:13px;margin-bottom:10px;
+  background:var(--white);display:flex;gap:12px;align-items:center}
+.prop .pi{width:52px;height:52px;border-radius:12px;background:var(--violet-grad);
+  display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
+.prop .pc{flex:1;min-width:0}
+.prop .pc .pt{font-size:13.5px;font-weight:700;color:var(--violet-deep)}
+.prop .pc .pd{font-size:11px;color:var(--text-sub);margin-top:3px}
+.prop .pc .pmeta{display:flex;gap:7px;margin-top:6px;flex-wrap:wrap}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px}
+.stat{border-radius:13px;padding:14px;text-align:center;color:#fff;box-shadow:var(--shadow)}
+.stat.v{background:var(--violet-grad)}
+.stat.g{background:var(--gold-grad);color:#3B0764}
+.stat .sv{font-size:22px;font-weight:800;line-height:1.2}
+.stat .sl{font-size:10.5px;opacity:.92;margin-top:3px}
+/* ========== 稅務試算 ========== */
+.calc-row{display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:1px dashed var(--violet-border);font-size:13px}
+.calc-row:last-child{border:none}
+.calc-row .cl{color:var(--text-sub)}
+.calc-row .cv{font-weight:800;color:var(--violet-deep)}
+.calc-total{margin-top:13px;background:var(--violet-grad);color:#fff;padding:14px;
+  border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.calc-total .cv{font-size:21px;font-weight:800;color:var(--gold-light)}
+/* ========== Toast ========== */
+.toast{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);
+  background:rgba(46,16,101,.95);color:#fff;padding:11px 20px;border-radius:22px;
+  font-size:12.5px;z-index:200;opacity:0;transition:.3s;pointer-events:none;
+  border:1px solid rgba(212,175,55,.5);white-space:nowrap}
+.toast.show{opacity:1;bottom:118px}
+/* 頂部返回列 */
+.sub-bar{background:var(--violet-grad);color:#fff;padding:8px 14px 12px;display:flex;
+  align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:20}
+.sub-bar .bk{font-size:19px;font-weight:700;cursor:pointer;width:26px}
+.sub-bar .st{font-size:15.5px;font-weight:800;letter-spacing:.5px}
+.chip-row{display:flex;gap:8px;overflow-x:auto;padding:4px 14px 12px;background:var(--violet-grad)}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:11.5px;font-weight:700;
+  background:rgba(255,255,255,.16);color:rgba(255,255,255,.85);cursor:pointer;border:none;font-family:inherit}
+.chip.on{background:var(--gold-grad);color:#3B0764}
+.hint{font-size:11px;color:var(--text-sub);line-height:1.7;margin-top:9px}
+.disclaimer{font-size:10px;color:#9CA3AF;text-align:center;padding:16px 20px;line-height:1.7}
+.gold-div{height:2px;background:var(--gold-grad);margin:0 14px;opacity:.6}
+.empty{padding:44px 20px;text-align:center;color:var(--text-sub);font-size:12.5px}
+.empty .ei{font-size:44px;margin-bottom:12px;opacity:.35}
+/* ========== 包租公致富學院課程 ========== */
+.course{display:flex;gap:12px;padding:13px;border:1px solid var(--violet-border);
+  border-radius:13px;margin-bottom:11px;background:var(--white);cursor:pointer;transition:.2s}
+.course:active{transform:scale(.98);background:var(--violet-pale)}
+.course .cp{width:68px;height:68px;border-radius:12px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:30px;background:var(--violet-grad)}
+.course .cc{flex:1;min-width:0}
+.course .ct{font-size:13.5px;font-weight:700;color:var(--violet-deep);line-height:1.4}
+.course .cby{font-size:11px;color:var(--text-sub);margin-top:4px}
+.course .cmeta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.course .cprice{margin-top:7px;display:flex;align-items:baseline;gap:7px}
+.course .cprice .now{font-size:17px;font-weight:800;color:var(--violet)}
+.course .cprice .old{font-size:11px;color:#9CA3AF;text-decoration:line-through}
+.course .cprice .save{font-size:10px;font-weight:700;color:var(--gold-deep);
+  background:rgba(212,175,55,.16);padding:2px 7px;border-radius:10px}
+.my-course{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px dashed var(--violet-border)}
+.my-course:last-child{border:none}
+.prog{flex:1;height:6px;background:var(--violet-border);border-radius:3px;overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--gold-grad);border-radius:3px}
+/* ========== 緊急服務 SOS ========== */
+.sos-main{margin:14px;padding:22px;border-radius:18px;
+  background:linear-gradient(135deg,#DC2626 0%,#991B1B 100%);color:#fff;text-align:center;
+  cursor:pointer;box-shadow:0 8px 24px rgba(220,38,38,.38);position:relative;overflow:hidden}
+.sos-main::after{content:"";position:absolute;top:-30px;right:-20px;width:110px;height:110px;
+  background:radial-gradient(circle,rgba(212,175,55,.3),transparent 70%)}
+.sos-main .smi{font-size:38px;position:relative}
+.sos-main .smt{font-size:17px;font-weight:800;margin-top:7px;position:relative;letter-spacing:1px}
+.sos-main .smd{font-size:11.5px;opacity:.92;margin-top:5px;position:relative;line-height:1.6}
+.sos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:14px}
+.sos-b{background:var(--white);border-radius:14px;padding:12px 4px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;border:1px solid rgba(212,175,55,.2);transition:.2s}
+.sos-b:active{transform:scale(.94)}
+.sos-b .si{font-size:25px}
+.sos-b .sn{font-size:10.5px;font-weight:700;margin-top:5px;color:var(--violet-deep)}
+.sos-b .s24{font-size:8px;color:var(--gold-deep);font-weight:700;margin-top:2px}
+.contact{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--violet-border)}
+.contact:last-child{border:none}
+.contact .ci{width:40px;height:40px;border-radius:11px;background:var(--violet-pale);
+  display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.contact .cn{flex:1}
+.contact .cn .n{font-size:13px;font-weight:700;color:var(--violet-deep)}
+.contact .cn .p{font-size:11.5px;color:var(--text-sub);margin-top:2px}
+.call-btn{background:var(--gold-grad);color:#3B0764;border:none;padding:9px 15px;
+  border-radius:20px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.guide{border-left:3px solid var(--violet);background:var(--violet-pale);
+  padding:11px 13px;border-radius:0 10px 10px 0;margin-bottom:10px}
+.guide .gt{font-size:12.5px;font-weight:800;color:var(--violet-deep);margin-bottom:4px}
+.guide .gc{font-size:11.5px;color:var(--text-sub);line-height:1.65}
+/* ========== 法律條文內嵌展示 ========== */
+.law-acc{border:1px solid var(--violet-border);border-radius:13px;margin-bottom:10px;
+  overflow:hidden;background:var(--white)}
+.law-acc .lh{padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:.2s}
+.law-acc .lh:active{background:var(--violet-pale)}
+.law-acc .lh .li-ico{width:42px;height:42px;border-radius:12px;background:var(--violet-grad);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.law-acc .lh .lc .lt{font-size:13.5px;font-weight:700;color:var(--violet-deep);line-height:1.4}
+.law-acc .lh .lc .ld{font-size:11px;color:var(--text-sub);margin-top:2px}
+.law-acc .lh .ar{margin-left:auto;color:var(--violet);font-size:14px;font-weight:700;transition:.3s}
+.law-acc.open .lh .ar{transform:rotate(90deg)}
+.law-acc .lb{display:none;padding:0 16px 16px;border-top:1px dashed var(--violet-border)}
+.law-acc.open .lb{display:block;animation:fadeIn .3s}
+.law-acc .lb .src-tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;
+  color:var(--gold-deep);background:rgba(212,175,55,.14);padding:4px 10px;border-radius:8px;
+  margin:13px 0 0;font-weight:700;border:1px solid rgba(212,175,55,.3)}
+.art{border-left:3px solid var(--violet-light);padding:9px 12px;margin-top:11px;
+  background:#FBFAFE;border-radius:0 9px 9px 0}
+.art .an{font-size:11.5px;font-weight:800;color:var(--violet)}
+.art .ac{font-size:11.5px;color:var(--text);line-height:1.75;margin-top:3px}
+.law-acc .lb .law-btn-row{margin-top:14px;display:flex;gap:9px}
+.law-acc .lb .law-btn-row .btn{flex:1}
+.law-acc .lb .law-btn-row a{flex:1;text-decoration:none}
+/* ========== 推播設定開關 ========== */
+.sw{width:44px;height:24px;border-radius:12px;background:#D1D5DB;position:relative;
+  cursor:pointer;transition:.3s;flex-shrink:0}
+.sw.on{background:var(--violet-grad)}
+.sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+  background:#fff;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw.on i{left:22px}
+.set-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--violet-border)}
+.set-row:last-child{border:none}
+.set-row .sr-c{flex:1}
+.set-row .sr-t{font-size:13px;font-weight:700;color:var(--violet-deep)}
+.set-row .sr-d{font-size:11px;color:var(--text-sub);margin-top:3px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- 狀態列 -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <span class="icons">📶 🔋</span>
+  </div>
+
+  <!-- ===== 登入頁 ===== -->
+  <div class="screen-wrap">
+    <!-- 登入 -->
+    <div class="screen active" id="sc-login">
+      <div class="login-wrap">
+        <div class="lg-in">
+          <img src="assets/logo.svg" alt="房管家 Logo" class="lg-logo">
+          <div class="lg-title">房管家</div>
+          <div class="lg-sub">租屋管理安全諮詢</div>
+          <label class="fl">帳號 / 手機號碼</label>
+          <input class="input" id="lg-acc" placeholder="請輸入帳號或手機號碼">
+          <label class="fl">密碼</label>
+          <input class="input" type="password" id="lg-pwd" placeholder="請輸入密碼">
+          <div class="lg-links">
+            <span onclick="go('sc-register')">註冊新帳號</span>
+            <span onclick="toast('請透過 LINE OA 聯繫客服協助重設密碼')">忘記密碼</span>
+          </div>
+          <button class="btn btn-gold" onclick="doLogin()">登 入</button>
+          <div class="lg-other">— 或使用其他方式登入 —</div>
+          <div class="lg-oi">
+            <div onclick="toast('第三方登入尚未開放')">💬</div><div onclick="toast('第三方登入尚未開放')">🍎</div><div onclick="toast('第三方登入尚未開放')">✉️</div>
+          </div>
+          <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:22px;line-height:1.7">
+            註冊即表示同意《服務條款》與《隱私權政策》<br>本平台提供法律資訊參考，非律師專業意見
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 註冊 -->
+    <div class="screen" id="sc-register">
+      <div class="login-wrap">
+        <div class="lg-in">
+          <div class="lg-title" style="font-size:21px">註冊會員</div>
+          <div class="lg-sub">加入房管家，守護您的租屋權益</div>
+          <label class="fl">姓名</label>
+          <input class="input" id="rg-name" maxlength="40" placeholder="請輸入真實姓名">
+          <label class="fl">手機號碼</label>
+          <input class="input" id="rg-phone" inputmode="tel" maxlength="12" placeholder="09xx-xxx-xxx">
+          <label class="fl">電子郵件</label>
+          <input class="input" id="rg-email" type="email" maxlength="254" placeholder="example@mail.com">
+          <label class="fl">身份</label>
+          <select class="input" id="rg-identity">
+            <option>房東（自有房屋出租）</option>
+            <option>包租代管業者</option>
+            <option>二房東 / 轉租人</option>
+            <option>其他</option>
+          </select>
+          <label class="fl">密碼</label>
+          <input class="input" type="password" id="rg-pwd" autocomplete="new-password" placeholder="至少 8 碼，含英文與數字">
+          <label class="fl">確認密碼</label>
+          <input class="input" type="password" id="rg-pwd2" autocomplete="new-password" placeholder="請再輸入一次">
+          <div style="font-size:10.5px;color:rgba(255,255,255,.7);margin:6px 0 16px;line-height:1.6">
+            <label><input type="checkbox" id="rg-agree"> 我已閱讀並同意服務條款與隱私權政策</label>
+          </div>
+          <button class="btn btn-gold" onclick="doRegister()">註冊並開始使用</button>
+          <div style="text-align:center;font-size:11.5px;color:rgba(255,255,255,.75);margin-top:16px">
+            已有帳號？<span style="color:var(--gold-light);font-weight:700" onclick="go('sc-login')">返回登入</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 首頁 ===== -->
+    <div class="screen" id="sc-home">
+      <div class="app-header">
+        <div class="header-row">
+          <div class="logo-box">
+            <img src="assets/logo.svg" alt="房管家 Logo" class="logo-img"
+              onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<svg viewBox=\'0 0 100 100\'><path d=\'M50 8 L92 42 L84 42 L84 88 L16 88 L16 42 L8 42 Z\' fill=\'rgba(255,255,255,.16)\' stroke=\'#D4AF37\' stroke-width=\'3\'/><path d=\'M50 14 L86 42 L50 42 Z\' fill=\'#D4AF37\'/></svg>')">
+          </div>
+          <div class="header-title">
+            <div class="brand">房管家</div>
+            <div class="sub">租屋管理安全諮詢</div>
+          </div>
+          <div class="bell" onclick="toast('您有 3 則未讀通知')">
+            🔔<span class="dot"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 會員橫幅 -->
+      <div class="member-banner" onclick="openMember()" id="homeBanner">
+        <div class="mb-top">
+          <span class="lv" id="bannerLv">免費會員</span>
+          <span class="badge" id="bannerBadge">基礎方案</span>
+        </div>
+        <div class="mb-desc" id="bannerDesc">可查閱基礎法律資料與範本預覽。升級金牌／鑽石解鎖每日報、線上諮詢與預約服務。</div>
+        <button class="mb-btn" onclick="event.stopPropagation();openMember()">👑 查看升級方案</button>
+      </div>
+
+      <!-- 四大功能鍵 -->
+      <div class="quick-grid">
+        <div class="q-btn" onclick="go('sc-issue')">
+          <div class="q-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div class="q-txt">租管<br>問題</div>
+        </div>
+        <div class="q-btn" onclick="go('sc-law')">
+          <div class="q-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 19.5V5a2 2 0 012-2h13v18H6.5A2.5 2.5 0 014 19.5z"/><path d="M8 7h7M8 11h7M8 15h4"/></svg></div>
+          <div class="q-txt">法律<br>工具</div>
+        </div>
+        <div class="q-btn" onclick="go('sc-tpl')">
+          <div class="q-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div>
+          <div class="q-txt">範本<br>工具</div>
+        </div>
+        <div class="q-btn" onclick="go('sc-consult')">
+          <span class="lock-ico">🔒</span>
+          <div class="q-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <div class="q-txt">預約<br>諮詢</div>
+        </div>
+        <div class="q-btn" onclick="go('sc-res')">
+          <div class="q-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 2h6v6H9zM3 8h18v13H3zM3 8l9-6 9 6"/></svg></div>
+          <div class="q-txt">租賃<br>資源</div>
+        </div>
+      </div>
+
+      <!-- 每日報 -->
+      <div class="sec-title"><span class="bar"></span>📰 每日報 — 包租代管新知<span class="more" onclick="toast('載入更多新聞')">更多 ›</span></div>
+      <div class="card" style="margin-top:0">
+        <div class="news-item" onclick="openNews(0)">
+          <div class="news-pic">🏠</div>
+          <div class="news-c">
+            <div class="nt">包租代管租金補貼加碼，房東稅賦減免方案一次看懂</div>
+            <div class="nm"><span class="news-hot">熱門</span><span class="src">內政部不動產資訊平台</span><span>今日 08:30</span></div>
+          </div>
+        </div>
+        <div class="news-item" onclick="openNews(1)">
+          <div class="news-pic">⚖️</div>
+          <div class="news-c">
+            <div class="nt">租賃專法新制上路：押金上限、租金漲幅與修繕責任重點整理</div>
+            <div class="nm"><span class="src">全國法規資料庫</span><span>今日 07:15</span></div>
+          </div>
+        </div>
+        <div class="news-item" onclick="openNews(2)">
+          <div class="news-pic">📉</div>
+          <div class="news-c">
+            <div class="nt">惡房客防範指南：簽約前徵信與契約條款設計 5 大重點</div>
+            <div class="nm"><span class="src">房管家法務專欄</span><span>昨日 18:40</span></div>
+          </div>
+        </div>
+        <div class="news-item" onclick="openNews(3)">
+          <div class="news-pic">🧾</div>
+          <div class="news-c">
+            <div class="nt">包租 vs 代管稅務差異：營業稅、所得稅與扣繳憑單申報實務</div>
+            <div class="nm"><span class="src">財政部稅務入口網</span><span>昨日 15:20</span></div>
+          </div>
+        </div>
+        <div class="news-item" onclick="openNews(4)">
+          <div class="news-pic">🔨</div>
+          <div class="news-c">
+            <div class="nt">點交爭議頻傳！律師教你用「房屋現況確認書」自保</div>
+            <div class="nm"><span class="src">房管家法務專欄</span><span>昨日 11:05</span></div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:11px 0 3px">
+          <button class="btn btn-outline btn-sm" onclick="toast('解鎖金牌會員可瀏覽完整每日報')">🔓 解鎖完整每日報</button>
+        </div>
+      </div>
+
+      <!-- 商業加值功能入口 -->
+      <div class="sec-title"><span class="bar"></span>💼 進階管理工具</div>
+
+      <div class="card">
+        <div class="list-item" onclick="go('sc-prop')">
+          <div class="li-ico">🏢</div>
+          <div class="li-c"><div class="lt">物件與房客管理</div><div class="ld">合約、房客、維修一站式管理</div></div>
+          <div class="li-ar">›</div>
+        </div>
+        <div class="list-item" onclick="go('sc-tax')">
+          <div class="li-ico">🧮</div>
+          <div class="li-c"><div class="lt">包租／代管稅務試算</div><div class="ld">營業稅、所得稅自動估算</div></div>
+          <div class="li-ar">›</div>
+        </div>
+        <div class="list-item" onclick="go('sc-school')">
+          <div class="li-ico">🎓</div>
+          <div class="li-c"><div class="lt">包租公致富學院（課程商城）<span class="tag tag-gold" style="margin-left:6px">鑽石 6 折</span></div><div class="ld">8 堂法規／契約／稅務實戰課，會員折扣</div></div>
+          <div class="li-ar">›</div>
+        </div>
+        <div class="list-item" onclick="go('sc-sos')">
+          <div class="li-ico">🚨</div>
+          <div class="li-c"><div class="lt">緊急服務專線 <span class="tag tag-violet" style="margin-left:6px">24H</span></div><div class="ld">律師／鎖匠／水電／抓漏，一鍵直撥</div></div>
+          <div class="li-ar">›</div>
+        </div>
+      </div>
+      <div class="disclaimer">本 APP 提供之法律資訊僅供參考，<br>個案處理仍建議諮詢專業律師。</div>
+    </div>
+
+    <!-- ===== 租管問題 ===== -->
+    <div class="screen" id="sc-issue">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">租管問題</span></div>
+      <div class="chip-row" id="issueChips"></div>
+      <div style="padding:0 14px 14px">
+        <div class="hint" style="margin:0 0 12px">💡 點擊情境卡展開「標準處理流程」，內含步驟、法律依據與適用範本。</div>
+        <div id="issueList"></div>
+      </div>
+    </div>
+
+    <!-- ===== 法律工具 ===== -->
+    <div class="screen" id="sc-law">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">法律工具</span></div>
+      <div style="padding:0 14px 14px">
+        <div class="hint" style="margin:12px 0">⚖️ 點擊條文直接在 APP 內展開重點摘要，亦可點「前往官方來源查閱」連至全國法規資料庫／司法院查閱完整最新條文。</div>
+        <div id="lawList"></div>
+        <div id="kbServer"></div>
+      </div>
+    </div>
+
+    <!-- ===== 租賃資源 ===== -->
+    <div class="screen" id="sc-res">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">租賃資源</span></div>
+      <div style="padding:0 14px 14px">
+        <div class="hint" style="margin:12px 0">🔗 整合租賃管理常用官方資源與工具網站，點擊直接前往外部連結。</div>
+        <div class="card" id="resList"></div>
+        <div class="card">
+          <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>ℹ️ 使用說明</div>
+          <div style="font-size:11.5px;color:var(--text-sub);line-height:1.8">
+            各連結將開啟外部官方網站，實際內容以各主管機關公布為準。存證信函建議先於本 APP「範本工具」產生草稿，再至中華郵政存證信函產生器正式繕打寄發，以取得送達證明。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 範本工具 ===== -->
+    <div class="screen" id="sc-tpl">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">範本工具產生器</span></div>
+      <div class="chip-row" id="tplChips"></div>
+      <div style="padding:0 14px 14px">
+        <div class="hint" style="margin:0 0 12px">📝 填寫欄位即可自動產生書信／表單，可複製、列印或存檔。共 <b id="tplCount">0</b> 種常用範本。</div>
+        <div id="tplList"></div>
+        <div id="tplServer"></div>
+      </div>
+    </div>
+
+    <!-- ===== 預約諮詢 ===== -->
+    <div class="screen" id="sc-consult">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">預約諮詢</span></div>
+      <div style="padding:0 14px 14px">
+        <div class="member-banner" style="margin:14px 0">
+          <div class="mb-top"><span class="lv">付費會員專屬</span><span class="badge">金牌 + 鑽石</span></div>
+          <div class="mb-desc">線上諮詢：金牌會員起可用。預約 Live 諮詢：鑽石會員專屬，可線上視訊／面對面／電話即時對話律師。</div>
+        </div>
+
+        <!-- 線上諮詢：金牌+鑽石 -->
+        <div class="card">
+          <div class="sec-title" style="margin:0 0 12px"><span class="bar"></span>💬 在線諮詢（即時互動）<span class="tag tag-gold" style="margin-left:6px">金牌+</span></div>
+          <div id="chatGuard"></div>
+          <div id="chatWrap" style="display:none">
+            <div class="chat-box" id="chatBox">
+              <div class="msg"><div class="av">AI</div><div><div class="bub">您好，我是房管家 <b>AI 法務助理</b>，精通台灣租賃相關法律（租賃專法、民法租賃章、消保法、強制執行法等）。請描述您的租屋問題，我會即時為您分析並提供建議。</div><div class="tm">09:30</div></div></div>
+              <div class="msg"><div class="av">AI</div><div><div class="bub">您可以詢問：租金糾紛、押金爭議、終止租約、存證信函撰寫、點交程序等問題。若需律師即時對話，可點下方「預約 Live 諮詢」安排時段（鑽石會員專屬）。</div><div class="tm">09:31</div></div></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:11px">
+              <input class="input" id="chatIn" placeholder="輸入您的問題…" style="margin:0;flex:1">
+              <button class="btn btn-sm" style="padding:9px 16px" onclick="sendMsg()">送出</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 預約 Live 諮詢：鑽石 -->
+        <div class="card">
+          <div class="sec-title" style="margin:0 0 12px"><span class="bar"></span>📅 預約 Live 諮詢 <span class="tag tag-gold" style="margin-left:6px">鑽石</span></div>
+          <div id="liveGuard"></div>
+          <div id="liveWrap" style="display:none">
+            <label class="fl">諮詢方式</label>
+            <select class="input" id="bkType">
+              <option>線上視訊諮詢</option>
+              <option>面對面諮詢（地點由合作事務所確認）</option>
+              <option>電話諮詢</option>
+            </select>
+            <label class="fl">問題類別</label>
+            <select class="input" id="bkCat">
+              <option>租金／欠租糾紛</option>
+              <option>點交／押金爭議</option>
+              <option>終止租約／遷讓房屋</option>
+              <option>契約審閱與擬定</option>
+              <option>稅務申報諮詢</option>
+              <option>其他</option>
+            </select>
+            <label class="fl">希望日期</label>
+            <input class="input" type="date" id="bkDate">
+            <label class="fl">希望時段（每節 1 小時）</label>
+            <select class="input" id="bkSlot">
+              <option>09:00 - 10:00</option>
+              <option>10:00 - 11:00</option>
+              <option>11:00 - 12:00</option>
+              <option>13:00 - 14:00</option>
+              <option>14:00 - 15:00</option>
+              <option>15:00 - 16:00</option>
+              <option>16:00 - 17:00</option>
+              <option>18:00 - 19:00</option>
+              <option>19:00 - 20:00</option>
+              <option>20:00 - 21:00</option>
+            </select>
+            <label class="fl">問題簡述</label>
+            <textarea class="input" rows="3" id="bkSummary" maxlength="1000" placeholder="簡述您的狀況，律師將事先了解"></textarea>
+            <button class="btn btn-gold" onclick="submitBooking()">送出預約申請</button>
+            <div id="myBookings" style="margin-top:12px"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-title" style="margin:0 0 12px"><span class="bar"></span>🔗 加入房管家 LINE OA</div>
+          <div style="text-align:center;padding:8px 0">
+            <div style="font-size:44px">💬</div>
+            <div style="font-size:13px;font-weight:700;color:var(--violet-deep);margin:9px 0 5px">房管家官方 LINE 帳號</div>
+            <div style="font-size:11.5px;color:var(--text-sub);line-height:1.7;margin-bottom:13px">
+              加入好友即可接收每日報推播、<br>即時線上諮詢與預約提醒
+            </div>
+            <a href="https://lin.ee/TMsTOY1" target="_blank" style="text-decoration:none">
+              <button class="btn btn-gold" style="background:#06C755;color:#fff">加入 LINE OA 好友</button>
+            </a>
+            <div style="font-size:10.5px;color:var(--text-sub);margin-top:11px">ID：@fangguanjen │ https://lin.ee/TMsTOY1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 物件管理 ===== -->
+    <div class="screen" id="sc-prop">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">物件與房客管理</span></div>
+      <div style="padding:0 14px 14px">
+        <div class="stat-grid" style="margin:14px 0">
+          <div class="stat v"><div class="sv">6</div><div class="sl">在租物件</div></div>
+          <div class="stat g"><div class="sv">$182K</div><div class="sl">本月租金收入</div></div>
+        </div>
+        <div class="sec-title"><span class="bar"></span>🏢 我的物件</div>
+        <div class="card" style="margin-top:0" id="propList"></div>
+        <div class="sec-title"><span class="bar"></span>🔔 近期提醒</div>
+        <div class="card" style="margin-top:0">
+          <div class="list-item"><div class="li-ico">📅</div><div class="li-c"><div class="lt">忠孝東路 3F 租約到期</div><div class="ld">剩 28 天 │ 房客：陳OO │ 建議寄發續約通知</div></div><span class="tag tag-gold">待處理</span></div>
+          <div class="list-item"><div class="li-ico">💰</div><div class="li-c"><div class="lt">南京東路 5F 租金未繳</div><div class="ld">逾期 12 天 │ 金額 $28,000 │ 建議寄發催繳函</div></div><span class="tag tag-lock">逾期</span></div>
+          <div class="list-item"><div class="li-ico">🔧</div><div class="li-c"><div class="lt">信義路 2F 熱水器報修</div><div class="ld">房客申請 │ 待派工 │ 已受理 2 天</div></div><span class="tag tag-violet">處理中</span></div>
+        </div>
+        <div class="sec-title"><span class="bar"></span>🔔 自動推播提醒設定</div>
+        <div class="card" style="margin-top:0">
+          <div class="set-row">
+            <div class="sr-c"><div class="sr-t">合約到期提醒</div><div class="sr-d">到期前 30 / 60 / 90 天自動推播，並推薦寄發續約通知書</div></div>
+            <div class="sw on" onclick="this.classList.toggle('on')"><i></i></div>
+          </div>
+          <div class="set-row">
+            <div class="sr-c"><div class="sr-t">租金繳款提醒</div><div class="sr-d">繳款日前 3 天推播房客，減少欠租發生</div></div>
+            <div class="sw on" onclick="this.classList.toggle('on')"><i></i></div>
+          </div>
+          <div class="set-row">
+            <div class="sr-c"><div class="sr-t">逾期自動催繳</div><div class="sr-d">逾期第 3 / 7 天自動產生催繳存證信函草稿</div></div>
+            <div class="sw on" onclick="this.classList.toggle('on')"><i></i></div>
+          </div>
+          <div class="set-row">
+            <div class="sr-c"><div class="sr-t">每日報推播</div><div class="sr-d">每日 08:00 推播包租代管新知<span class="tag tag-gold" style="margin-left:5px">金牌</span></div></div>
+            <div class="sw" onclick="this.classList.toggle('on');if(this.classList.contains('on'))toast('金牌會員功能')"><i></i></div>
+          </div>
+          <div class="set-row">
+            <div class="sr-c"><div class="sr-t">修繕進度通知</div><div class="sr-d">報修受理與完工時同步通知房東與房客</div></div>
+            <div class="sw on" onclick="this.classList.toggle('on')"><i></i></div>
+          </div>
+        </div>
+        <div style="padding:0 0 6px">
+          <button class="btn btn-outline" onclick="toast('新增物件表單（開發中）')">＋ 新增物件</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 稅務試算 ===== -->
+    <div class="screen" id="sc-tax">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">包租／代管稅務試算</span></div>
+      <div style="padding:0 14px 14px">
+        <div class="card" style="margin:14px 0">
+          <label class="fl">經營模式</label>
+          <select class="input" id="taxMode" onchange="calcTax()">
+            <option value="bag">包租（轉租）</option>
+            <option value="agent">代管（受託管理）</option>
+          </select>
+          <label class="fl">每月租金收入（元）</label>
+          <input class="input" type="number" id="taxIncome" value="300000" oninput="calcTax()">
+          <label class="fl">每月成本支出（元）</label>
+          <input class="input" type="number" id="taxCost" value="220000" oninput="calcTax()">
+        </div>
+        <div class="card">
+          <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>🧮 試算結果</div>
+          <div id="taxResult"></div>
+          <div class="calc-total"><span>全年預估稅負合計</span><span class="cv" id="taxTotal">$0</span></div>
+          <div class="hint">※ 本試算為簡化估算，實際稅額依財政部規定與個案情形而定，建議洽會計師或至財政部稅務入口網確認。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 包租公致富學院 ===== -->
+    <div class="screen" id="sc-school">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">包租公致富學院</span></div>
+      <div class="chip-row" id="schoolChips"></div>
+      <div style="padding:0 14px 14px">
+        <div class="member-banner" style="margin:14px 0">
+          <div class="mb-top"><span class="lv">🎓 會員專屬折扣</span><span class="badge">鑽石 6 折</span></div>
+          <div class="mb-desc">金牌會員享 8 折、鑽石會員享 6 折。課程由執業律師、會計師與資深業者授課，含實體班與線上回放。</div>
+        </div>
+        <div class="card" style="margin:0 0 14px">
+          <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>📚 我的課程（進行中）</div>
+          <div id="myCourses"></div>
+        </div>
+        <div class="sec-title"><span class="bar"></span>🔥 全部課程</div>
+        <div style="margin-top:0" id="courseList"></div>
+      </div>
+    </div>
+
+    <!-- ===== 緊急服務 ===== -->
+    <div class="screen" id="sc-sos">
+      <div class="sub-bar"><span class="bk" onclick="go('sc-home')">‹</span><span class="st">緊急服務專線</span></div>
+      <div style="padding-bottom:14px">
+        <div class="sos-main" onclick="callSos('房管家 24H 客服專線','0800-123-456')">
+          <div class="smi">🚨</div>
+          <div class="smt">SOS 一鍵求助</div>
+          <div class="smd">立即接通房管家 24H 法務客服<br>由專人協助判斷並即時調度服務</div>
+        </div>
+        <div class="sec-title"><span class="bar"></span>🛠️ 緊急服務叫修</div>
+        <div class="sos-grid" id="sosGrid"></div>
+        <div style="padding:0 14px">
+          <div class="card">
+            <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>📇 我的常用聯絡人</div>
+            <div id="myContacts"></div>
+            <button class="btn btn-outline btn-sm" style="width:100%;margin-top:11px" onclick="toast('新增聯絡人功能開發中')">＋ 新增常用聯絡人</button>
+          </div>
+          <div class="card">
+            <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>📖 緊急狀況處理指引</div>
+            <div id="sosGuides"></div>
+          </div>
+          <div class="card">
+            <div class="sec-title" style="margin:0 0 10px"><span class="bar"></span>☎️ 公共緊急電話</div>
+            <div class="contact"><div class="ci">🚓</div><div class="cn"><div class="n">報案專線</div><div class="p">110</div></div><button class="call-btn" onclick="toast('撥打 110')">撥打</button></div>
+            <div class="contact"><div class="ci">🚑</div><div class="cn"><div class="n">救護車／消防</div><div class="p">119</div></div><button class="call-btn" onclick="toast('撥打 119')">撥打</button></div>
+            <div class="contact"><div class="ci">⚖️</div><div class="cn"><div class="n">法律扶助基金會</div><div class="p">412-8518</div></div><button class="call-btn" onclick="toast('撥打 412-8518')">撥打</button></div>
+            <div class="contact"><div class="ci">🏛️</div><div class="cn"><div class="n">1999 市民服務專線</div><div class="p">各縣市政服務</div></div><button class="call-btn" onclick="toast('撥打 1999')">撥打</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 我的 ===== -->
+    <div class="screen" id="sc-me">
+      <div class="app-header">
+        <div class="header-row">
+          <div class="logo-box">
+            <img src="assets/logo.svg" alt="房管家 Logo" class="logo-img">
+          </div>
+          <div class="header-title">
+            <div class="brand">會員中心</div>
+            <div class="sub">房管家 · 租屋管理安全諮詢</div>
+          </div>
+        </div>
+      </div>
+      <div class="member-banner" id="meBanner">
+        <div class="mb-top"><span class="lv" id="meLv">免費會員</span><span class="badge" id="meBadge">基礎方案</span></div>
+        <div class="mb-desc" id="meDesc">基礎法律資料查詢</div>
+        <button class="mb-btn" onclick="openMember()">👑 升級會員方案</button>
+      </div>
+      <div class="card">
+        <div class="list-item"><div class="li-ico">👤</div><div class="li-c"><div class="lt">帳號資料</div><div class="ld" id="meAcc">尚未登入</div></div><div class="li-ar">›</div></div>
+        <div class="list-item" onclick="openMember()"><div class="li-ico">💳</div><div class="li-c"><div class="lt">我的訂閱與帳單</div><div class="ld" id="mePlanSub">目前：免費方案</div></div><div class="li-ar">›</div></div>
+        <div class="list-item"><div class="li-ico">📁</div><div class="li-c"><div class="lt">我的文件（雲端存檔）</div><div class="ld">即將推出</div></div><div class="li-ar">›</div></div>
+        <div class="list-item"><div class="li-ico">🔔</div><div class="li-c"><div class="lt">通知設定</div><div class="ld">合約到期、租金催收提醒</div></div><div class="li-ar">›</div></div>
+        <div class="list-item"><div class="li-ico">❓</div><div class="li-c"><div class="lt">常見問題 / 客服</div><div class="ld">LINE OA：@fangguanjen</div></div><div class="li-ar">›</div></div>
+      </div>
+      <div class="card">
+        <div class="list-item" onclick="doLogout()"><div class="li-ico" style="background:#FEE2E2">🚪</div><div class="li-c"><div class="lt" style="color:var(--danger)">登出帳號</div></div><div class="li-ar">›</div></div>
+      </div>
+      <div class="disclaimer">房管家 v1.0　│　服務條款　│　隱私權政策<br>法律資訊僅供參考，非律師專業意見</div>
+    </div>
+  </div>
+
+  <!-- ===== 底部導航 ===== -->
+  <div class="bottom-nav">
+    <div class="nav-item on" data-s="sc-home" onclick="go('sc-home')">
+      <div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg></div>
+      <span>首頁</span>
+    </div>
+    <div class="nav-item" data-s="sc-issue" onclick="go('sc-issue')">
+      <div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg></div>
+      <span>租管</span>
+    </div>
+    <div class="nav-item" data-s="sc-tpl" onclick="go('sc-tpl')">
+      <div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></div>
+      <span>範本</span>
+    </div>
+    <div class="nav-item" data-s="sc-consult" onclick="go('sc-consult')">
+      <div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <span>諮詢</span>
+    </div>
+    <div class="nav-item" data-s="sc-me" onclick="go('sc-me')">
+      <div class="ico-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <span>我的</span>
+    </div>
+  </div>
+
+  <!-- 彈窗 -->
+  <div class="mask" id="mask" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-h"><div class="mt" id="mTitle">標題</div><div class="mx" onclick="closeModal()">×</div></div>
+      <div class="modal-b" id="mBody"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/bridge.js"></script>
+</body>
+</html>

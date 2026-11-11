@@ -1,0 +1,18 @@
+[Unit]
+Description=房管家 APP v2
+After=network.target
+
+[Service]
+Type=simple
+User=fgj
+WorkingDirectory=/opt/fgj-app
+EnvironmentFile=/opt/fgj-app/.env
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

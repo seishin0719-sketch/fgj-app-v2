@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: fgj-app-v2-test
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /app.html
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: TRUST_PROXY
+        value: "1"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: PRICES_FILE
+        value: ./config/prices.test.json
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: PAYMENT_WEBHOOK_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@fgj-test.tw
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        value: ""

@@ -1,0 +1,8 @@
+{
+  "_說明": "僅供本機測試用的假價格，正式環境請勿使用（PRICES_FILE 不要指向此檔）。",
+  "currency": "TWD",
+  "plans": {
+    "gold": { "name": "金牌會員", "monthly": 1, "yearly": 10 },
+    "diamond": { "name": "鑽石會員", "monthly": 2, "yearly": 20 }
+  }
+}

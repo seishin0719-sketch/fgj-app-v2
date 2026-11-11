@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>房管家後台登入</title><link rel="stylesheet" href="/admin/admin.css"></head>
+<body class="center">
+<form class="box" id="f" autocomplete="on">
+  <h1>🏠 房管家後台</h1>
+  <p class="muted">僅限管理員登入。所有登入與操作都會留下紀錄。</p>
+  <label for="acc">管理員 Email</label><input id="acc" type="email" autocomplete="username" required maxlength="254">
+  <label for="pwd">密碼</label><input id="pwd" type="password" autocomplete="current-password" required maxlength="128">
+  <div class="row"><button class="btn btn-p" type="submit">登入</button></div>
+  <div class="err" id="err"></div>
+</form>
+<script src="/admin/login.js"></script>
+</body></html>

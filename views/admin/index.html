@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>房管家 · 後台管理系統 v2</title><link rel="stylesheet" href="/admin/admin.css"></head>
+<body>
+<div class="app">
+  <nav class="sb" id="nav">
+    <h1>🏠 房管家</h1><small>後台管理系統 v2</small>
+    <button class="ni act" data-sec="dashboard">📊 儀表板</button>
+    <button class="ni" data-sec="members">👥 會員管理</button>
+    <button class="ni" data-sec="orders">💳 訂單與付款</button>
+    <button class="ni" data-sec="revenue">💰 營收報表</button>
+    <button class="ni" data-sec="bookings">📅 鑽石預約管理</button>
+    <button class="ni" data-sec="kb">📚 法律知識庫</button>
+    <button class="ni" data-sec="templates">📝 範本管理</button>
+    <button class="ni" data-sec="audit">🧾 操作紀錄</button>
+    <button class="ni" data-sec="settings">⚙️ 設定與密碼</button>
+    <button class="ni" id="logout">🚪 登出</button>
+  </nav>
+  <main class="mn">
+    <div class="tb"><h2 id="title">儀表板</h2><span id="who" class="muted"></span></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div class="mo" id="mo"><div class="md" id="md"></div></div>
+<script src="/admin/admin.js"></script>
+</body></html>
